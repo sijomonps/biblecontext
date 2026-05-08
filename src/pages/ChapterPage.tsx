@@ -2,6 +2,15 @@ import { useParams, Link } from 'react-router'
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Globe, RotateCcw } from 'lucide-react'
 import { getBookById } from '../data/bibleData'
 import { useLanguage } from '../hooks/useLanguage'
+import SEO from '../components/Seo'
+import {
+  AUTHOR_NAME,
+  SITE_NAME,
+  applyLanguageToPath,
+  buildCanonicalUrl,
+  buildChapterTitle,
+  truncateText
+} from '../lib/seo'
 
 export default function ChapterPage() {
   const { bookId, chapterNum } = useParams<{ bookId: string; chapterNum: string }>()
@@ -34,6 +43,48 @@ export default function ChapterPage() {
 
   const completed = JSON.parse(localStorage.getItem('bible-read-chapters') || '{}')
   const isRead = completed[`${book.id}-${chapter}`]
+  const title = buildChapterTitle(book.name, chapter)
+  const summaryText = lang === 'ml' ? chapterData.ml : chapterData.en
+  const description = truncateText(summaryText)
+  const keywords = [
+    SITE_NAME,
+    `${book.name} ${chapter}`,
+    `${book.name} chapter summary`,
+    'Bible chapter summary',
+    'Bible context',
+    lang === 'ml' ? book.ml_name : ''
+  ]
+  const chapterPath = applyLanguageToPath(`/book/${book.id}/chapter/${chapter}`, lang)
+  const chapterUrl = buildCanonicalUrl(chapterPath)
+  const bookUrl = buildCanonicalUrl(applyLanguageToPath(`/book/${book.id}`, lang))
+  const schema = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: title,
+      description,
+      url: chapterUrl,
+      inLanguage: lang === 'ml' ? 'ml-IN' : 'en-US',
+      author: {
+        '@type': 'Person',
+        name: AUTHOR_NAME
+      },
+      isPartOf: {
+        '@type': 'Book',
+        name: book.name,
+        url: bookUrl
+      },
+      mainEntityOfPage: chapterUrl
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: title,
+      url: chapterUrl,
+      inLanguage: lang === 'ml' ? 'ml-IN' : 'en-US',
+      description
+    }
+  ]
 
   const toggleRead = () => {
     const key = `${book.id}-${chapter}`
@@ -52,7 +103,20 @@ export default function ChapterPage() {
   const nextChapter = chapter < book.chapters.length ? chapter + 1 : null
 
   return (
-    <div className="max-w-[1200px] 2xl:max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <article className="max-w-[1200px] 2xl:max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <SEO
+        title={title}
+        description={description}
+        keywords={keywords}
+        type="article"
+        breadcrumbs={[
+          { name: 'Home', path: '/' },
+          { name: book.name, path: `/book/${book.id}` },
+          { name: `Chapter ${chapter}`, path: `/book/${book.id}/chapter/${chapter}` }
+        ]}
+        schema={schema}
+        lang={lang}
+      />
       {/* Breadcrumb */}
       <div className="flex items-center gap-1.5 text-sm text-muted-foreground flex-wrap">
         <Link to="/" className="hover:text-foreground transition-colors">Books</Link>
@@ -177,6 +241,6 @@ export default function ChapterPage() {
           <div />
         )}
       </div>
-    </div>
+    </article>
   )
 }

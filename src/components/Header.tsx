@@ -30,9 +30,9 @@ export default function Header() {
             <BookOpen className="w-4.5 h-4.5 text-primary" />
           </div>
           <div className="hidden sm:block">
-            <h1 className="font-display text-lg font-semibold leading-none text-foreground/90">
+            <span className="font-display text-lg font-semibold leading-none text-foreground/90">
               BibleContext
-            </h1>
+            </span>
             <p className="text-[10px] font-tech text-muted-foreground mt-0.5">
               Chapter Context
             </p>
@@ -40,7 +40,7 @@ export default function Header() {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-6" aria-label="Primary">
           <Link
             to="/"
             className="text-xs font-tech text-muted-foreground hover:text-foreground transition-colors"

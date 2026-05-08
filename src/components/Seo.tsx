@@ -1,12 +1,15 @@
 import { Helmet } from 'react-helmet-async'
 import { useLocation } from 'react-router'
 import {
+  AUTHOR_NAME,
   DEFAULT_DESCRIPTION,
   DEFAULT_IMAGE,
   DEFAULT_KEYWORDS,
+  DEFAULT_TITLE,
   SITE_NAME,
   TAGLINE,
   SITE_URL,
+  applyLanguageToPath,
   buildCanonicalUrl,
   dedupeKeywords,
   languageToLocale,
@@ -65,13 +68,15 @@ export default function SEO({
   lang = 'en'
 }: SeoProps) {
   const location = useLocation()
-  const resolvedPath = canonicalPath || `${location.pathname}${location.search}`
+  const basePath = canonicalPath || `${location.pathname}${location.search}`
+  const resolvedPath = applyLanguageToPath(basePath, lang)
   const canonicalUrl = buildCanonicalUrl(resolvedPath)
-  const metaTitle = title || `${SITE_NAME} - ${TAGLINE}`
+  const metaTitle = title || DEFAULT_TITLE || `${SITE_NAME} - ${TAGLINE}`
   const metaDescription = description || DEFAULT_DESCRIPTION
   const metaKeywords = dedupeKeywords([...(keywords || []), ...DEFAULT_KEYWORDS]).join(', ')
   const ogImage = toAbsoluteUrl(image || DEFAULT_IMAGE)
   const locale = languageToLocale(lang)
+  const alternateLocale = languageToLocale(lang === 'ml' ? 'en' : 'ml')
   const schemas: Array<Record<string, unknown>> = []
 
   if (breadcrumbs && breadcrumbs.length > 0) {
@@ -87,7 +92,7 @@ export default function SEO({
       <title>{metaTitle}</title>
       <meta name="description" content={metaDescription} />
       <meta name="keywords" content={metaKeywords} />
-      <meta name="author" content="Sijomon P S" />
+      <meta name="author" content={AUTHOR_NAME} />
       <meta name="robots" content="index,follow" />
       <link rel="canonical" href={canonicalUrl} />
 
@@ -98,15 +103,18 @@ export default function SEO({
       <meta property="og:title" content={metaTitle} />
       <meta property="og:description" content={metaDescription} />
       <meta property="og:image" content={ogImage} />
+      <meta property="og:image:alt" content={metaTitle} />
       <meta property="og:type" content={type} />
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:site_name" content={SITE_NAME} />
       <meta property="og:locale" content={locale} />
+      <meta property="og:locale:alternate" content={alternateLocale} />
 
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={metaTitle} />
       <meta name="twitter:description" content={metaDescription} />
       <meta name="twitter:image" content={ogImage} />
+      <meta name="twitter:image:alt" content={metaTitle} />
 
       {schemas.map((item, index) => (
         <script key={index} type="application/ld+json">

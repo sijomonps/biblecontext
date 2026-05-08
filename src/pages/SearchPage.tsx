@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams, Link } from 'react-router'
 import { ArrowLeft, Search, BookOpen } from 'lucide-react'
 import { bibleBooks } from '../data/bibleData'
 import { useLanguage } from '../hooks/useLanguage'
+import SEO from '../components/Seo'
+import { SITE_NAME, applyLanguageToPath, buildCanonicalUrl, buildSearchTitle, truncateText } from '../lib/seo'
 
 export default function SearchPage() {
   const [searchParams] = useSearchParams()
@@ -48,8 +50,51 @@ export default function SearchPage() {
     return matches
   }, [query])
 
+  const title = buildSearchTitle(query || undefined)
+    const description = query
+      ? truncateText(
+          lang === 'ml'
+            ? `"${query}" എന്നതിനുള്ള തിരയൽ ഫലങ്ങൾ ബൈബിൾ അദ്ധ്യായ സംഗ്രഹങ്ങളിൽ നിന്ന്.`
+            : `Search results for "${query}" across Bible chapter summaries.`
+        )
+      : truncateText(
+          lang === 'ml'
+            ? 'പുസ്തകം, അദ്ധ്യായം, അല്ലെങ്കിൽ കീവേഡ് ഉപയോഗിച്ച് ബൈബിൾ അദ്ധ്യായ സംഗ്രഹങ്ങൾ തിരയുക.'
+            : 'Search Bible chapter summaries by book, chapter, or keyword.'
+        )
+  const keywords = [
+    SITE_NAME,
+    'Bible search',
+    'Bible chapter search',
+    'Bible chapter summaries',
+    query
+  ]
+  const searchPath = applyLanguageToPath(`/search${query ? `?q=${encodeURIComponent(query)}` : ''}`, lang)
+  const searchUrl = buildCanonicalUrl(searchPath)
+  const schema = [
+    {
+      '@context': 'https://schema.org',
+      '@type': query ? 'SearchResultsPage' : 'WebPage',
+      name: title,
+      url: searchUrl,
+      description,
+      inLanguage: lang === 'ml' ? 'ml-IN' : 'en-US'
+    }
+  ]
+
   return (
-    <div className="max-w-[1400px] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <article className="max-w-[1400px] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <SEO
+        title={title}
+        description={description}
+        keywords={keywords}
+        breadcrumbs={[
+          { name: 'Home', path: '/' },
+          { name: 'Search', path: '/search' }
+        ]}
+        schema={schema}
+        lang={lang}
+      />
       {/* Header */}
       <div className="space-y-4">
         <Link
@@ -136,6 +181,6 @@ export default function SearchPage() {
           )}
         </div>
       )}
-    </div>
+    </article>
   )
 }

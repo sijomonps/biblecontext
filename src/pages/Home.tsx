@@ -4,7 +4,7 @@ import { oldTestamentBooks, newTestamentBooks, totalBooks, totalChapters, type B
 import { useLanguage } from '../hooks/useLanguage'
 import BookProgressRing from '../components/BookProgressRing'
 import SEO from '../components/Seo'
-import { SITE_URL } from '../lib/seo'
+import { SITE_URL, applyLanguageToPath, buildCanonicalUrl } from '../lib/seo'
 
 function BookCard({ book, index }: { book: Book; index: number }) {
   const { lang } = useLanguage()
@@ -104,7 +104,7 @@ export default function Home() {
       '@context': 'https://schema.org',
       '@type': 'WebPage',
       name: title,
-      url: `${SITE_URL}/`,
+      url: buildCanonicalUrl(applyLanguageToPath('/', lang)),
       description
     }
   ]

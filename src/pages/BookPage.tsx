@@ -3,6 +3,8 @@ import { ArrowLeft, Check, BookOpen } from 'lucide-react'
 import { getBookById } from '../data/bibleData'
 import { useLanguage } from '../hooks/useLanguage'
 import BookProgressRing from '../components/BookProgressRing'
+import SEO from '../components/Seo'
+import { SITE_NAME, applyLanguageToPath, buildBookTitle, buildCanonicalUrl, truncateText } from '../lib/seo'
 
 export default function BookPage() {
   const { bookId } = useParams<{ bookId: string }>()
@@ -23,6 +25,44 @@ export default function BookPage() {
   const completed = JSON.parse(localStorage.getItem('bible-read-chapters') || '{}')
   const readCount = book.chapters.filter(c => completed[`${book.id}-${c.chapter}`]).length
   const progress = Math.round((readCount / book.chapters.length) * 100)
+  const title = buildBookTitle(book.name)
+  const description =
+    lang === 'en'
+      ? truncateText(`Chapter summaries and context for ${book.name}. Read each chapter with clarity before you begin.`)
+      : truncateText(`${book.ml_name} പുസ്തകത്തിലെ അദ്ധ്യായങ്ങൾക്കായി ലളിതമായ സന്ദർഭ സംഗ്രഹങ്ങൾ.`)
+  const keywords = [
+    SITE_NAME,
+    book.name,
+    `${book.name} chapter summaries`,
+    `${book.name} context`,
+    'Bible chapter summaries',
+    'Bible context',
+    lang === 'ml' ? book.ml_name : ''
+  ]
+  const bookPath = applyLanguageToPath(`/book/${book.id}`, lang)
+  const bookUrl = buildCanonicalUrl(bookPath)
+  const schema = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Book',
+      name: book.name,
+      url: bookUrl,
+      inLanguage: lang === 'ml' ? 'ml-IN' : 'en-US',
+      isPartOf: {
+        '@type': 'CreativeWork',
+        name: 'Holy Bible'
+      },
+      description
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: title,
+      url: bookUrl,
+      inLanguage: lang === 'ml' ? 'ml-IN' : 'en-US',
+      description
+    }
+  ]
 
   const toggleChapter = (chapter: number) => {
     const key = `${book.id}-${chapter}`
@@ -38,7 +78,18 @@ export default function BookPage() {
   }
 
   return (
-    <div className="max-w-[1400px] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <article className="max-w-[1400px] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <SEO
+        title={title}
+        description={description}
+        keywords={keywords}
+        breadcrumbs={[
+          { name: 'Home', path: '/' },
+          { name: book.name, path: `/book/${book.id}` }
+        ]}
+        schema={schema}
+        lang={lang}
+      />
       {/* Back button & Header */}
       <div className="space-y-6">
         <Link
@@ -119,6 +170,6 @@ export default function BookPage() {
           )
         })}
       </div>
-    </div>
+    </article>
   )
 }
