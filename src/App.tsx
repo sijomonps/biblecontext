@@ -6,6 +6,7 @@ import ChapterPage from './pages/ChapterPage'
 import SearchPage from './pages/SearchPage'
 import Header from './components/Header'
 import Footer from './components/Footer'
+import { useLanguage } from './hooks/useLanguage'
 
 function ScrollManager() {
   const location = useLocation()
@@ -68,6 +69,23 @@ function ScrollManager() {
   return null
 }
 
+function LanguageQuerySync() {
+  const location = useLocation()
+  const { lang, setLang } = useLanguage()
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const requested = params.get('lang')
+    if (requested === 'en' || requested === 'ml') {
+      if (requested !== lang) {
+        setLang(requested)
+      }
+    }
+  }, [location.search, lang, setLang])
+
+  return null
+}
+
 export default function App() {
   return (
     <div className="min-h-screen bg-background text-foreground font-body relative overflow-x-hidden">
@@ -76,6 +94,7 @@ export default function App() {
         <div className="absolute bottom-0 right-0 h-[420px] w-[420px] rounded-full bg-white/5 blur-[160px]" />
       </div>
       <ScrollManager />
+      <LanguageQuerySync />
       <Header />
       <main className="pt-16">
         <Routes>

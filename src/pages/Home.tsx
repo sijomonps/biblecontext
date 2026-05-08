@@ -3,6 +3,8 @@ import { BookOpen, ChevronRight, Sparkles } from 'lucide-react'
 import { oldTestamentBooks, newTestamentBooks, totalBooks, totalChapters, type Book } from '../data/bibleData'
 import { useLanguage } from '../hooks/useLanguage'
 import BookProgressRing from '../components/BookProgressRing'
+import SEO from '../components/Seo'
+import { SITE_URL } from '../lib/seo'
 
 function BookCard({ book, index }: { book: Book; index: number }) {
   const { lang } = useLanguage()
@@ -67,11 +69,59 @@ export default function Home() {
   const { lang, toggleLang } = useLanguage()
   const otChapters = oldTestamentBooks.reduce((s, b) => s + b.chapters.length, 0)
   const ntChapters = newTestamentBooks.reduce((s, b) => s + b.chapters.length, 0)
+  const title = 'BibleContext - Understand Before You Read'
+  const description =
+    lang === 'en'
+      ? 'Understand Before You Read. One-line Bible chapter summaries in English and Malayalam for beginners.'
+      : 'വായിക്കുന്നതിന് മുമ്പ് മനസ്സിലാക്കുക. തുടക്കക്കാർക്കായി ഇംഗ്ലീഷിലും മലയാളത്തിലും ഒറ്റ വരി ബൈബിൾ അദ്ധ്യായ സംഗ്രഹങ്ങൾ.'
+  const keywords = [
+    'BibleContext',
+    'Bible chapter summaries',
+    'Bible context',
+    'Understand Before You Read',
+    'Bible study',
+    'English Malayalam Bible'
+  ]
+  const schemas = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'BibleContext',
+      url: SITE_URL,
+      description,
+      inLanguage: ['en', 'ml'],
+      publisher: {
+        '@type': 'Person',
+        name: 'Sijomon P S'
+      },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: `${SITE_URL}/search?q={search_term_string}`,
+        'query-input': 'required name=search_term_string'
+      }
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: title,
+      url: `${SITE_URL}/`,
+      description
+    }
+  ]
 
   return (
-    <div className="max-w-[1600px] 2xl:max-w-[1760px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+    <>
+      <SEO
+        title={title}
+        description={description}
+        keywords={keywords}
+        breadcrumbs={[{ name: 'Home', path: '/' }]}
+        schema={schemas}
+        lang={lang}
+      />
+      <div className="max-w-[1600px] 2xl:max-w-[1760px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
       {/* Hero */}
-      <section className="relative overflow-hidden panel panel-grid panel-outline p-8 sm:p-12 text-center">
+      <header className="relative overflow-hidden panel panel-grid panel-outline p-8 sm:p-12 text-center">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(210,220,255,0.12),transparent_55%)]" />
         <div className="relative space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20">
@@ -123,7 +173,7 @@ export default function Home() {
             {lang === 'en' ? 'മലയാളത്തിൽ കാണുക' : 'View in English'}
           </button>
         </div>
-      </section>
+      </header>
 
       <div className="text-center text-sm text-muted-foreground/80 max-w-2xl mx-auto -mt-6">
         <p className="font-display text-base text-foreground/85">
@@ -149,6 +199,7 @@ export default function Home() {
         subtitle={`${newTestamentBooks.length} books, ${ntChapters} chapters`}
         books={newTestamentBooks}
       />
-    </div>
+      </div>
+    </>
   )
 }
