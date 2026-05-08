@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 220 16% 4%;
+    --foreground: 210 15% 95%;
+    --card: 220 14% 8%;
+    --card-foreground: 210 15% 95%;
+    --popover: 220 14% 8%;
+    --popover-foreground: 210 15% 95%;
+    --primary: 210 14% 78%;
+    --primary-foreground: 220 16% 6%;
+    --secondary: 220 12% 12%;
+    --secondary-foreground: 210 12% 90%;
+    --muted: 220 12% 14%;
+    --muted-foreground: 215 10% 60%;
+    --accent: 210 16% 70%;
+    --accent-foreground: 220 16% 6%;
+    --destructive: 0 64% 48%;
+    --destructive-foreground: 0 0% 95%;
+    --border: 220 10% 16%;
+    --input: 220 10% 14%;
+    --ring: 210 16% 70%;
+    --radius: 0.75rem;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+    background-image:
+      radial-gradient(circle at 12% 10%, rgba(255, 255, 255, 0.06), transparent 40%),
+      radial-gradient(circle at 80% 20%, rgba(180, 200, 255, 0.08), transparent 45%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 40%);
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Orbitron', 'Space Grotesk', system-ui, sans-serif;
+    letter-spacing: 0.02em;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: 'Orbitron', 'Space Grotesk', system-ui, sans-serif;
+  }
+  .font-body {
+    font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  }
+  .font-tech {
+    font-family: 'Orbitron', 'Space Grotesk', system-ui, sans-serif;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply rounded-2xl border border-border/70 bg-card/80 backdrop-blur-sm;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  }
+  .panel-grid {
+    background-image:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, transparent 45%),
+      linear-gradient(0deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.02));
+  }
+  .panel-outline {
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+      inset 0 0 18px rgba(255, 255, 255, 0.04);
+  }
+  .divider-line {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  }
+}
