@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { Routes, Route, useLocation, useNavigationType } from 'react-router'
 import Home from './pages/Home'
 import BookPage from './pages/BookPage'
@@ -10,29 +10,59 @@ import Footer from './components/Footer'
 function ScrollManager() {
   const location = useLocation()
   const navigationType = useNavigationType()
-  const scrollPositions = useRef<Map<string, number>>(new Map())
-  const key = `${location.pathname}${location.search}`
+  const positions = useRef<Map<string, number>>(new Map())
+  const key = location.key
+  const prevKeyRef = useRef(key)
+
+  const forceScroll = (top: number) => {
+    window.scrollTo({ top, left: 0, behavior: 'auto' })
+    if (document.documentElement) {
+      document.documentElement.scrollTop = top
+    }
+    if (document.body) {
+      document.body.scrollTop = top
+    }
+  }
 
   useEffect(() => {
-    const handleScroll = () => {
-      scrollPositions.current.set(key, window.scrollY)
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual'
     }
+  }, [])
+
+  const savePosition = (targetKey: string) => {
+    const y = window.scrollY
+    positions.current.set(targetKey, y)
+    sessionStorage.setItem(`scroll:${targetKey}`, String(y))
+  }
+
+  useEffect(() => {
+    const handleScroll = () => savePosition(key)
 
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => {
-      scrollPositions.current.set(key, window.scrollY)
+      savePosition(key)
       window.removeEventListener('scroll', handleScroll)
     }
   }, [key])
 
-  useEffect(() => {
-    if (navigationType === 'POP') {
-      const restored = scrollPositions.current.get(key) ?? 0
-      window.scrollTo({ top: restored, left: 0, behavior: 'auto' })
-      return
+  useLayoutEffect(() => {
+    const prevKey = prevKeyRef.current
+    if (prevKey !== key) {
+      savePosition(prevKey)
+      prevKeyRef.current = key
     }
+  }, [key])
 
-    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+  useLayoutEffect(() => {
+    const stored = sessionStorage.getItem(`scroll:${key}`)
+    const restored = stored ? Number(stored) : positions.current.get(key) ?? 0
+    const target = navigationType === 'POP' ? restored : 0
+
+    forceScroll(target)
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => forceScroll(target))
+    })
   }, [key, navigationType])
 
   return null
