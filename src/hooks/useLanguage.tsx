@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 
 type Language = 'en' | 'ml'
@@ -18,6 +18,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   })
   const location = useLocation()
   const navigate = useNavigate()
+  const lastSearchRef = useRef<string | null>(null)
 
   const updateLang = useCallback((newLang: Language) => {
     setLang(newLang)
@@ -29,6 +30,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
+    if (lastSearchRef.current === location.search) {
+      return
+    }
+    lastSearchRef.current = location.search
+
     const params = new URLSearchParams(location.search)
     const requested = params.get('lang')
     if (requested === 'en' || requested === 'ml') {
